@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa Mental — Física</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent-math: #f4a261;
+    --accent-vec: #48cae4;
+    --accent-force: #e63946;
+    --accent-energy: #2dc653;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --center-glow: rgba(244,162,97,0.15);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.6;
+  }
+
+  header {
+    text-align: center;
+    padding: 3rem 2rem 1.5rem;
+    position: relative;
+  }
+
+  header .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  header h1 {
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #f4a261, #e63946, #48cae4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.15s; }
+  .card:nth-child(3) { animation-delay: 0.25s; }
+  .card:nth-child(4) { animation-delay: 0.35s; }
+
+  /* accent stripe at top */
+  .card::before {
+    content: '';
+    display: block;
+    height: 3px;
+    width: 100%;
+  }
+  .card.math::before    { background: var(--accent-math); }
+  .card.vectors::before { background: var(--accent-vec); }
+  .card.forces::before  { background: var(--accent-force); }
+  .card.energy::before  { background: var(--accent-energy); }
+
+  /* glow in corner */
+  .card::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0.12;
+  }
+  .card.math::after    { background: var(--accent-math); }
+  .card.vectors::after { background: var(--accent-vec); }
+  .card.forces::after  { background: var(--accent-force); }
+  .card.energy::after  { background: var(--accent-energy); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .card.math    .card-title { color: var(--accent-math); }
+  .card.vectors .card-title { color: var(--accent-vec); }
+  .card.forces  .card-title { color: var(--accent-force); }
+  .card.energy  .card-title { color: var(--accent-energy); }
+
+  .card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  /* SECTION inside card */
+  .section { display: flex; flex-direction: column; gap: 0.6rem; }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 0.3rem;
+    border-bottom: 1px dashed var(--border);
+  }
+
+  /* rule chip */
+  .rule {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  .rule .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 0.45em;
+  }
+  .math    .dot { background: var(--accent-math); }
+  .vectors .dot { background: var(--accent-vec); }
+  .forces  .dot { background: var(--accent-force); }
+  .energy  .dot { background: var(--accent-energy); }
+
+  /* formula pill */
+  .formula {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    color: #fff;
+    margin-top: 0.1rem;
+    align-self: flex-start;
+  }
+
+  .formula.math-f    { border-color: rgba(244,162,97,0.3);  color: var(--accent-math);  background: rgba(244,162,97,0.05); }
+  .formula.vec-f     { border-color: rgba(72,202,228,0.3);  color: var(--accent-vec);   background: rgba(72,202,228,0.05); }
+  .formula.force-f   { border-color: rgba(230,57,70,0.3);   color: var(--accent-force); background: rgba(230,57,70,0.05); }
+  .formula.energy-f  { border-color: rgba(45,198,83,0.3);   color: var(--accent-energy);background: rgba(45,198,83,0.05); }
+
+  /* example block */
+  .example {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.76rem;
+    color: var(--muted);
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border-radius: 0 4px 4px 0;
+    line-height: 1.7;
+  }
+
+  /* mini table */
+  .mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+  }
+  .mini-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-table td {
+    padding: 0.3rem 0.5rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(30,30,46,0.7);
+  }
+  .mini-table code {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--accent-math);
+  }
+
+  /* highlight badge */
+  .badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .badge.warn { background: rgba(244,162,97,0.15); color: var(--accent-math); }
+  .badge.info { background: rgba(72,202,228,0.12); color: var(--accent-vec); }
+  .badge.ok   { background: rgba(45,198,83,0.12);  color: var(--accent-energy); }
+
+  /* divider */
+  .divider { height: 1px; background: var(--border); }
+
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="label">resumo completo ·  prova de física</div>
+  <h1>Mapa Mental — Física</h1>
+</header>
+
+<div class="grid">
+
+  <!-- ═══════════════ 1. MATEMÁTICA NA FÍSICA ═══════════════ -->
+  <div class="card math">
+    <div class="card-header">
+      <span class="card-num">01</span>
+      <span class="card-title">Matemática na Física</span>
+    </div>
+    <div class="card-body">
+
+      <div class="section">
+        <div class="section-title">Algarismos Significativos</div>
+        <div class="rule"><span class="dot"></span>Números confiáveis da medida + 1 duvidoso</div>
+        <div class="rule"><span class="dot"></span>Todos diferentes de zero contam → <span class="badge warn">3,25 = 3 alg.</span></div>
+        <div class="rule"><span class="dot"></span>Zeros entre números contam → <span class="badge warn">1002 = 4 alg.</span></div>
+        <div class="rule"><span class="dot"></span>Zeros à esquerda NÃO contam → <span class="badge warn">0,0045 = 2 alg.</span></div>
+        <div class="rule"><span class="dot"></span>Zeros depois da vírgula contam → <span class="badge warn">2,300 = 4 alg.</span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Operações</div>
+        <div class="rule"><span class="dot"></span><strong>Soma/Subtração</strong> → menos casas decimais</div>
+        <div class="example">15,9 + 0,823 = 16,7</div>
+        <div class="rule"><span class="dot"></span><strong>Multiplicação/Divisão</strong> → menor nº de algarismos sig.</div>
+        <div class="example">2,5 × 3,42 → resultado com 2 alg. sig.</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Notação Científica</div>
+        <div class="formula math-f">a × 10ⁿ &nbsp;(1 ≤ a &lt; 10)</div>
+        <div class="example">3500 = 3,5 × 10³
+0,0042 = 4,2 × 10⁻³</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Ordem de Grandeza</div>
+        <div class="rule"><span class="dot"></span>Potência de 10 mais próxima</div>
+        <div class="rule"><span class="dot"></span>Primeiro dígito <span class="badge warn">≥ 5</span> → sobe a potência</div>
+        <div class="rule"><span class="dot"></span>Primeiro dígito <span class="badge ok">&lt; 5</span> → mantém</div>
+        <div class="example">3,2 × 10⁶ → ordem = 10⁶
+7,1 × 10⁶ → ordem = 10⁷</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Conversão de Unidades — Comprimento</div>
+        <table class="mini-table">
+          <tr><th>Unidade</th><th>Conversão</th></tr>
+          <tr><td>km → m</td><td><code>× 1000</code></td></tr>
+          <tr><td>m → cm</td><td><code>× 100</code></td></tr>
+          <tr><td>cm → mm</td><td><code>× 10</code></td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Conversão de Unidades — Tempo</div>
+        <table class="mini-table">
+          <tr><th>De</th><th>Para</th><th>Fator</th></tr>
+          <tr><td>1 h</td><td>min</td><td><code>60 min</code></td></tr>
+          <tr><td>1 min</td><td>s</td><td><code>60 s</code></td></tr>
+          <tr><td>1 h</td><td>s</td><td><code>3600 s</code></td></tr>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ 2. VETORES ═══════════════ -->
+  <div class="card vectors">
+    <div class="card-header">
+      <span class="card-num">02</span>
+      <span class="card-title">Vetores</span>
+    </div>
+    <div class="card-body">
+
+      <div class="section">
+        <div class="section-title">O que define um vetor</div>
+        <div class="rule"><span class="dot"></span><strong>Módulo</strong> — o valor numérico</div>
+        <div class="rule"><span class="dot"></span><strong>Direção</strong> — a reta de atuação</div>
+        <div class="rule"><span class="dot"></span><strong>Sentido</strong> — para qual lado</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Distância vs Deslocamento</div>
+        <div class="rule"><span class="dot"></span><span class="badge warn">Distância</span> = caminho total percorrido</div>
+        <div class="rule"><span class="dot"></span><span class="badge info">Deslocamento</span> = posição inicial → final</div>
+        <div class="rule"><span class="dot"></span>Mesmo ponto inicial e final → deslocamento = 0</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Componentes do Vetor</div>
+        <div class="example">4 m leste, 3 m norte, 2 m oeste
+Eixo X: 4 − 2 = 2
+Eixo Y: 3
+Resultado: (2, 3)</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Módulo Resultante — Pitágoras</div>
+        <div class="formula vec-f">R = √(x² + y²)</div>
+        <div class="example">Vetor (2, 3):
+R = √(4 + 9) = √13 ≈ 3,6</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Soma de Vetores</div>
+        <div class="rule"><span class="dot"></span>Método ponta-com-cauda (gráfico)</div>
+        <div class="rule"><span class="dot"></span>Soma das componentes (algébrico)</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Vetores Perpendiculares (90°)</div>
+        <div class="formula vec-f">R = √(a² + b²)</div>
+        <div class="rule"><span class="dot"></span>Ex: falcão com vento lateral</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ 3. FORÇAS ═══════════════ -->
+  <div class="card forces">
+    <div class="card-header">
+      <span class="card-num">03</span>
+      <span class="card-title">Forças</span>
+    </div>
+    <div class="card-body">
+
+      <div class="section">
+        <div class="section-title">Conceito</div>
+        <div class="rule"><span class="dot"></span>Interação que muda o estado de movimento</div>
+        <div class="rule"><span class="dot"></span>Unidade: <span class="badge warn">Newton (N)</span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Peso</div>
+        <div class="formula force-f">P = m · g</div>
+        <div class="rule"><span class="dot"></span>m = massa (kg)</div>
+        <div class="rule"><span class="dot"></span>g ≈ 10 m/s²</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Força Normal (N)</div>
+        <div class="rule"><span class="dot"></span>O chão empurra o objeto de volta</div>
+        <div class="rule"><span class="dot"></span>Sempre <strong>perpendicular</strong> à superfície</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Tração (T)</div>
+        <div class="rule"><span class="dot"></span>Transmitida por cordas ou fios</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Força Elástica — Lei de Hooke</div>
+        <div class="formula force-f">F = k · x</div>
+        <div class="rule"><span class="dot"></span>k = constante da mola (N/m)</div>
+        <div class="rule"><span class="dot"></span>x = deformação (m)</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Força de Atrito</div>
+        <div class="rule"><span class="dot"></span>Sempre <strong>oposta</strong> ao movimento</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════ 4. ENERGIA ═══════════════ -->
+  <div class="card energy">
+    <div class="card-header">
+      <span class="card-num">04</span>
+      <span class="card-title">Energia</span>
+    </div>
+    <div class="card-body">
+
+      <div class="section">
+        <div class="section-title">Conceito</div>
+        <div class="rule"><span class="dot"></span>Capacidade de realizar trabalho</div>
+        <div class="rule"><span class="dot"></span>Unidade: <span class="badge ok">Joule (J)</span></div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Energia Cinética (Ec)</div>
+        <div class="formula energy-f">Ec = mv² / 2</div>
+        <div class="rule"><span class="dot"></span>Energia do <strong>movimento</strong></div>
+        <div class="rule"><span class="dot"></span>Depende da velocidade (v²!)</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Energia Potencial Gravitacional (Ep)</div>
+        <div class="formula energy-f">Ep = m · g · h</div>
+        <div class="rule"><span class="dot"></span>Energia da <strong>altura</strong></div>
+        <div class="rule"><span class="dot"></span>Quanto mais alto → mais Ep</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Energia Potencial Elástica</div>
+        <div class="formula energy-f">Eel = kx² / 2</div>
+        <div class="rule"><span class="dot"></span>Energia armazenada na mola deformada</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">Conservação da Energia Mecânica</div>
+        <div class="formula energy-f">E_inicial = E_final</div>
+        <div class="rule"><span class="dot"></span>Válido quando <strong>não há atrito</strong></div>
+        <div class="example">Topo da rampa: Ep máxima, Ec = 0
+Base da rampa: Ec máxima, Ep = 0
+→ Ep converte em Ec</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<footer>mapa mental · física · gerado para estudo</footer>
+
+</body>
+</html>
