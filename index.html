@@ -1,1428 +1,842 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Física do Zero</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap"
-        rel="stylesheet">
-    <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #0a0a0f;
-            --surface: #111118;
-            --surface2: #16161f;
-            --border: #1e1e2e;
-            --border2: #2a2a3e;
-            --accent-math: #f4a261;
-            --accent-vec: #48cae4;
-            --accent-force: #e63946;
-            --accent-energy: #2dc653;
-            --text: #e8e8f0;
-            --muted: #7a7a9a;
-            --math-bg: rgba(244, 162, 97, 0.07);
-            --vec-bg: rgba(72, 202, 228, 0.07);
-            --force-bg: rgba(230, 57, 70, 0.07);
-            --energy-bg: rgba(45, 198, 83, 0.07);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Syne', sans-serif;
-            font-size: 15px;
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
-
-        /* grain */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0.5;
-        }
-
-        /* NAV */
-        nav {
-            position: sticky;
-            top: 0;
-            z-index: 99;
-            background: rgba(10, 10, 15, 0.9);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: center;
-            gap: 0.25rem;
-            padding: 0.55rem 1rem;
-            flex-wrap: wrap;
-        }
-
-        nav a {
-            text-decoration: none;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.68rem;
-            letter-spacing: 0.06em;
-            padding: 0.3rem 0.75rem;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            color: var(--muted);
-            transition: all 0.2s;
-        }
-
-        nav a:hover {
-            border-color: var(--border2);
-            color: var(--text);
-        }
-
-        nav a.m {
-            color: var(--accent-math);
-            border-color: rgba(244, 162, 97, 0.25);
-            background: rgba(244, 162, 97, 0.06);
-        }
-
-        nav a.v {
-            color: var(--accent-vec);
-            border-color: rgba(72, 202, 228, 0.25);
-            background: rgba(72, 202, 228, 0.06);
-        }
-
-        nav a.f {
-            color: var(--accent-force);
-            border-color: rgba(230, 57, 70, 0.25);
-            background: rgba(230, 57, 70, 0.06);
-        }
-
-        nav a.e {
-            color: var(--accent-energy);
-            border-color: rgba(45, 198, 83, 0.25);
-            background: rgba(45, 198, 83, 0.06);
-        }
-
-        /* HERO */
-        .hero {
-            text-align: center;
-            padding: 4rem 2rem 2.5rem;
-            max-width: 680px;
-            margin: 0 auto;
-        }
-
-        .hero .eyebrow {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--muted);
-            margin-bottom: 0.9rem;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.2rem, 6vw, 3.8rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-            margin-bottom: 0.9rem;
-            background: linear-gradient(135deg, var(--accent-math), var(--accent-force), var(--accent-vec));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .hero p {
-            font-size: 0.95rem;
-            color: var(--muted);
-            font-weight: 400;
-        }
-
-        /* LAYOUT */
-        main {
-            max-width: 820px;
-            margin: 0 auto;
-            padding: 0 1.25rem 6rem;
-        }
-
-        /* TOPIC */
-        .topic {
-            margin-bottom: 4.5rem;
-        }
-
-        .topic {
-            animation: fadeUp 0.5s ease both;
-        }
-
-        .topic:nth-child(1) {
-            animation-delay: .05s
-        }
-
-        .topic:nth-child(2) {
-            animation-delay: .15s
-        }
-
-        .topic:nth-child(3) {
-            animation-delay: .25s
-        }
-
-        .topic:nth-child(4) {
-            animation-delay: .35s
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .topic-header {
-            display: flex;
-            align-items: center;
-            gap: 0.85rem;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.9rem;
-            border-bottom: 1px solid var(--border2);
-        }
-
-        .topic-num {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            letter-spacing: 0.12em;
-            padding: 0.22rem 0.6rem;
-            border-radius: 4px;
-        }
-
-        .math-t .topic-num {
-            background: var(--math-bg);
-            color: var(--accent-math);
-            border: 1px solid rgba(244, 162, 97, 0.25);
-        }
-
-        .vec-t .topic-num {
-            background: var(--vec-bg);
-            color: var(--accent-vec);
-            border: 1px solid rgba(72, 202, 228, 0.25);
-        }
-
-        .force-t .topic-num {
-            background: var(--force-bg);
-            color: var(--accent-force);
-            border: 1px solid rgba(230, 57, 70, 0.25);
-        }
-
-        .energy-t.topic-num {
-            background: var(--energy-bg);
-            color: var(--accent-energy);
-            border: 1px solid rgba(45, 198, 83, 0.25);
-        }
-
-        .energy-t .topic-num {
-            background: var(--energy-bg);
-            color: var(--accent-energy);
-            border: 1px solid rgba(45, 198, 83, 0.25);
-        }
-
-        .topic-header h2 {
-            font-size: clamp(1.3rem, 3.5vw, 1.8rem);
-            font-weight: 700;
-            letter-spacing: -0.02em;
-        }
-
-        .math-t .topic-header h2 {
-            color: var(--accent-math);
-        }
-
-        .vec-t .topic-header h2 {
-            color: var(--accent-vec);
-        }
-
-        .force-t .topic-header h2 {
-            color: var(--accent-force);
-        }
-
-        .energy-t .topic-header h2 {
-            color: var(--accent-energy);
-        }
-
-        /* CARD */
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-            position: relative;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-        }
-
-        /* colored top stripe */
-        .card::before {
-            content: '';
-            display: block;
-            height: 2px;
-        }
-
-        .math-t .card::before {
-            background: var(--accent-math);
-        }
-
-        .vec-t .card::before {
-            background: var(--accent-vec);
-        }
-
-        .force-t .card::before {
-            background: var(--accent-force);
-        }
-
-        .energy-t .card::before {
-            background: var(--accent-energy);
-        }
-
-        .card-inner {
-            padding: 1.25rem 1.5rem 1.4rem;
-        }
-
-        .card-title {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            margin-bottom: 0.85rem;
-        }
-
-        .math-t .card-title {
-            color: var(--accent-math);
-        }
-
-        .vec-t .card-title {
-            color: var(--accent-vec);
-        }
-
-        .force-t .card-title {
-            color: var(--accent-force);
-        }
-
-        .energy-t .card-title {
-            color: var(--accent-energy);
-        }
-
-        .card p {
-            color: #c8c8d8;
-            font-size: 0.92rem;
-            margin-bottom: 0.55rem;
-        }
-
-        .card p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* rules list */
-        .rules {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 0.45rem;
-            margin-top: 0.6rem;
-        }
-
-        .rules li {
-            display: flex;
-            align-items: flex-start;
-            gap: 0.55rem;
-            font-size: 0.9rem;
-            color: #c8c8d8;
-        }
-
-        .rules li .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            margin-top: 0.48em;
-        }
-
-        .math-t .dot {
-            background: var(--accent-math);
-        }
-
-        .vec-t .dot {
-            background: var(--accent-vec);
-        }
-
-        .force-t .dot {
-            background: var(--accent-force);
-        }
-
-        .energy-t .dot {
-            background: var(--accent-energy);
-        }
-
-        /* formula */
-        .formula {
-            display: inline-flex;
-            align-items: center;
-            font-family: 'Space Mono', monospace;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 7px;
-            margin: 0.65rem 0 0.2rem;
-            border: 1px solid;
-        }
-
-        .math-t .formula {
-            color: var(--accent-math);
-            background: rgba(244, 162, 97, 0.07);
-            border-color: rgba(244, 162, 97, 0.2);
-        }
-
-        .vec-t .formula {
-            color: var(--accent-vec);
-            background: rgba(72, 202, 228, 0.07);
-            border-color: rgba(72, 202, 228, 0.2);
-        }
-
-        .force-t .formula {
-            color: var(--accent-force);
-            background: rgba(230, 57, 70, 0.07);
-            border-color: rgba(230, 57, 70, 0.2);
-        }
-
-        .energy-t .formula {
-            color: var(--accent-energy);
-            background: rgba(45, 198, 83, 0.07);
-            border-color: rgba(45, 198, 83, 0.2);
-        }
-
-        .f-vars {
-            font-size: 0.8rem;
-            color: var(--muted);
-            margin-top: 0.25rem;
-        }
-
-        /* example */
-        .example {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.78rem;
-            color: var(--muted);
-            background: rgba(255, 255, 255, 0.025);
-            border-left: 2px solid var(--border2);
-            padding: 0.55rem 0.8rem;
-            border-radius: 0 5px 5px 0;
-            margin-top: 0.6rem;
-            line-height: 1.75;
-        }
-
-        /* table */
-        .mini-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.83rem;
-            margin-top: 0.6rem;
-        }
-
-        .mini-table th {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.6rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--muted);
-            text-align: left;
-            padding: 0.35rem 0.6rem;
-            border-bottom: 1px solid var(--border2);
-        }
-
-        .mini-table td {
-            padding: 0.35rem 0.6rem;
-            color: #c8c8d8;
-            border-bottom: 1px solid rgba(30, 30, 46, 0.8);
-        }
-
-        .mini-table code {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.8rem;
-        }
-
-        .math-t .mini-table code {
-            color: var(--accent-math);
-        }
-
-        .vec-t .mini-table code {
-            color: var(--accent-vec);
-        }
-
-        .force-t .mini-table code {
-            color: var(--accent-force);
-        }
-
-        .energy-t .mini-table code {
-            color: var(--accent-energy);
-        }
-
-        /* callout */
-        .callout {
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            margin-top: 0.75rem;
-            font-size: 0.86rem;
-        }
-
-        .callout.warn {
-            background: rgba(244, 162, 97, 0.08);
-            border-left: 2px solid var(--accent-math);
-            color: #d4a07a;
-        }
-
-        .callout.tip {
-            background: rgba(45, 198, 83, 0.08);
-            border-left: 2px solid var(--accent-energy);
-            color: #7acf9a;
-        }
-
-        .callout.info {
-            background: rgba(72, 202, 228, 0.08);
-            border-left: 2px solid var(--accent-vec);
-            color: #7ac8da;
-        }
-
-        .callout strong {
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.2rem;
-        }
-
-        /* analogy */
-        .analogy {
-            display: flex;
-            gap: 0.65rem;
-            align-items: flex-start;
-            border-radius: 6px;
-            padding: 0.75rem 1rem;
-            margin-top: 0.7rem;
-            font-size: 0.87rem;
-            font-style: italic;
-            color: var(--muted);
-            background: rgba(255, 255, 255, 0.025);
-            border: 1px solid var(--border);
-        }
-
-        .analogy .icon {
-            font-size: 1rem;
-            flex-shrink: 0;
-            margin-top: 0.1em;
-            font-style: normal;
-        }
-
-        /* divider */
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 1rem 0;
-        }
-
-        /* badge */
-        .badge {
-            display: inline-block;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.68rem;
-            padding: 0.15rem 0.45rem;
-            border-radius: 4px;
-        }
-
-        .math-t .badge {
-            background: rgba(244, 162, 97, 0.12);
-            color: var(--accent-math);
-        }
-
-        .vec-t .badge {
-            background: rgba(72, 202, 228, 0.12);
-            color: var(--accent-vec);
-        }
-
-        .force-t .badge {
-            background: rgba(230, 57, 70, 0.12);
-            color: var(--accent-force);
-        }
-
-        .energy-t .badge {
-            background: rgba(45, 198, 83, 0.12);
-            color: var(--accent-energy);
-        }
-
-        /* INTERACTIVE */
-        .interactive {
-            background: var(--surface2);
-            border: 1px solid var(--border2);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 1rem;
-        }
-
-        .int-header {
-            padding: 0.85rem 1.4rem;
-            border-bottom: 1px solid var(--border);
-            font-family: 'Space Mono', monospace;
-            font-size: 0.65rem;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .math-t .int-header {
-            color: var(--accent-math);
-        }
-
-        .vec-t .int-header {
-            color: var(--accent-vec);
-        }
-
-        .force-t .int-header {
-            color: var(--accent-force);
-        }
-
-        .energy-t .int-header {
-            color: var(--accent-energy);
-        }
-
-        .int-body {
-            padding: 1.25rem 1.4rem;
-        }
-
-        /* quiz */
-        .quiz-item {
-            margin-bottom: 1rem;
-        }
-
-        .quiz-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .quiz-q {
-            font-size: 0.88rem;
-            color: #c8c8d8;
-            margin-bottom: 0.5rem;
-        }
-
-        .quiz-q code {
-            font-family: 'Space Mono', monospace;
-            background: rgba(255, 255, 255, 0.06);
-            padding: 0.1rem 0.35rem;
-            border-radius: 3px;
-        }
-
-        .quiz-opts {
-            display: flex;
-            gap: 0.4rem;
-            flex-wrap: wrap;
-        }
-
-        .quiz-opts button {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75rem;
-            padding: 0.3rem 0.75rem;
-            border-radius: 5px;
-            border: 1px solid var(--border2);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--muted);
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .quiz-opts button:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text);
-        }
-
-        .quiz-opts button.correct {
-            background: rgba(45, 198, 83, 0.12);
-            border-color: rgba(45, 198, 83, 0.4);
-            color: var(--accent-energy);
-        }
-
-        .quiz-opts button.wrong {
-            background: rgba(230, 57, 70, 0.1);
-            border-color: rgba(230, 57, 70, 0.35);
-            color: var(--accent-force);
-        }
-
-        .quiz-fb {
-            font-size: 0.8rem;
-            margin-top: 0.45rem;
-            display: none;
-        }
-
-        .quiz-fb.show {
-            display: block;
-        }
-
-        .quiz-fb.ok {
-            color: var(--accent-energy);
-        }
-
-        .quiz-fb.err {
-            color: var(--accent-force);
-        }
-
-        /* calc */
-        .calc-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-        }
-
-        .calc-field {
-            display: flex;
-            flex-direction: column;
-            gap: 0.3rem;
-            flex: 1;
-            min-width: 110px;
-        }
-
-        .calc-field label {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        .calc-field input {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.9rem;
-            padding: 0.45rem 0.7rem;
-            border-radius: 6px;
-            border: 1px solid var(--border2);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text);
-            outline: none;
-            width: 100%;
-            transition: border-color 0.2s;
-        }
-
-        .calc-btn {
-            margin-top: 0.75rem;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.75rem;
-            padding: 0.45rem 1.1rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .math-t .calc-btn {
-            background: var(--accent-math);
-            color: #1a0a00;
-        }
-
-        .vec-t .calc-btn {
-            background: var(--accent-vec);
-            color: #001a20;
-        }
-
-        .force-t .calc-btn {
-            background: var(--accent-force);
-            color: #fff;
-        }
-
-        .energy-t .calc-btn {
-            background: var(--accent-energy);
-            color: #001a0a;
-        }
-
-        .calc-btn:hover {
-            opacity: 0.85;
-        }
-
-        .calc-result {
-            margin-top: 0.7rem;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.85rem;
-            min-height: 1.3rem;
-        }
-
-        .math-t .calc-result {
-            color: var(--accent-math);
-        }
-
-        .vec-t .calc-result {
-            color: var(--accent-vec);
-        }
-
-        .force-t .calc-result {
-            color: var(--accent-force);
-        }
-
-        .energy-t .calc-result {
-            color: var(--accent-energy);
-        }
-
-        /* vec canvas */
-        .vec-canvas-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-
-        .vec-canvas-wrap canvas {
-            border: 1px solid var(--border);
-            border-radius: 7px;
-            background: #0d0d15;
-            display: block;
-            width: 100%;
-            max-width: 420px;
-        }
-
-        .vec-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .vec-controls label {
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--muted);
-            display: flex;
-            flex-direction: column;
-            gap: 0.35rem;
-        }
-
-        .vec-controls input[type=range] {
-            width: 130px;
-            accent-color: var(--accent-vec);
-        }
-
-        footer {
-            text-align: center;
-            padding: 2rem;
-            font-family: 'Space Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--muted);
-            border-top: 1px solid var(--border);
-            letter-spacing: 0.1em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Física do Zero</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #111118;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --border2: #2a2a3e;
+  --accent-math:   #f4a261;
+  --accent-vec:    #48cae4;
+  --accent-force:  #e63946;
+  --accent-energy: #2dc653;
+  --text: #e8e8f0;
+  --muted: #7a7a9a;
+  --math-bg:   rgba(244,162,97,0.07);
+  --vec-bg:    rgba(72,202,228,0.07);
+  --force-bg:  rgba(230,57,70,0.07);
+  --energy-bg: rgba(45,198,83,0.07);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* grain */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 1000; opacity: 0.5;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 99;
+  background: rgba(10,10,15,0.9);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex; justify-content: center; gap: 0.25rem;
+  padding: 0.55rem 1rem; flex-wrap: wrap;
+}
+nav a {
+  text-decoration: none;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.06em;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  color: var(--muted);
+  transition: all 0.2s;
+}
+nav a:hover { border-color: var(--border2); color: var(--text); }
+nav a.m { color: var(--accent-math);   border-color: rgba(244,162,97,0.25);  background: rgba(244,162,97,0.06); }
+nav a.v { color: var(--accent-vec);    border-color: rgba(72,202,228,0.25);  background: rgba(72,202,228,0.06); }
+nav a.f { color: var(--accent-force);  border-color: rgba(230,57,70,0.25);   background: rgba(230,57,70,0.06); }
+nav a.e { color: var(--accent-energy); border-color: rgba(45,198,83,0.25);   background: rgba(45,198,83,0.06); }
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 4rem 2rem 2.5rem;
+  max-width: 680px; margin: 0 auto;
+}
+.hero .eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 0.9rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 6vw, 3.8rem);
+  font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1.05; margin-bottom: 0.9rem;
+  background: linear-gradient(135deg, var(--accent-math), var(--accent-force), var(--accent-vec));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero p { font-size: 0.95rem; color: var(--muted); font-weight: 400; }
+
+/* LAYOUT */
+main { max-width: 820px; margin: 0 auto; padding: 0 1.25rem 6rem; }
+
+/* TOPIC */
+.topic { margin-bottom: 4.5rem; }
+.topic { animation: fadeUp 0.5s ease both; }
+.topic:nth-child(1){animation-delay:.05s}
+.topic:nth-child(2){animation-delay:.15s}
+.topic:nth-child(3){animation-delay:.25s}
+.topic:nth-child(4){animation-delay:.35s}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.topic-header {
+  display: flex; align-items: center; gap: 0.85rem;
+  margin-bottom: 1.5rem; padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--border2);
+}
+.topic-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem; letter-spacing: 0.12em;
+  padding: 0.22rem 0.6rem; border-radius: 4px;
+}
+.math-t  .topic-num { background: var(--math-bg);   color: var(--accent-math);   border: 1px solid rgba(244,162,97,0.25); }
+.vec-t   .topic-num { background: var(--vec-bg);    color: var(--accent-vec);    border: 1px solid rgba(72,202,228,0.25); }
+.force-t .topic-num { background: var(--force-bg);  color: var(--accent-force);  border: 1px solid rgba(230,57,70,0.25); }
+.energy-t.topic-num { background: var(--energy-bg); color: var(--accent-energy); border: 1px solid rgba(45,198,83,0.25); }
+.energy-t .topic-num { background: var(--energy-bg); color: var(--accent-energy); border: 1px solid rgba(45,198,83,0.25); }
+
+.topic-header h2 { font-size: clamp(1.3rem,3.5vw,1.8rem); font-weight: 700; letter-spacing: -0.02em; }
+.math-t   .topic-header h2 { color: var(--accent-math); }
+.vec-t    .topic-header h2 { color: var(--accent-vec); }
+.force-t  .topic-header h2 { color: var(--accent-force); }
+.energy-t .topic-header h2 { color: var(--accent-energy); }
+
+/* CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 16px 48px rgba(0,0,0,0.5); }
+
+/* colored top stripe */
+.card::before { content:''; display:block; height:2px; }
+.math-t   .card::before { background: var(--accent-math); }
+.vec-t    .card::before { background: var(--accent-vec); }
+.force-t  .card::before { background: var(--accent-force); }
+.energy-t .card::before { background: var(--accent-energy); }
+
+.card-inner { padding: 1.25rem 1.5rem 1.4rem; }
+
+.card-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.16em;
+  text-transform: uppercase; margin-bottom: 0.85rem;
+}
+.math-t   .card-title { color: var(--accent-math); }
+.vec-t    .card-title { color: var(--accent-vec); }
+.force-t  .card-title { color: var(--accent-force); }
+.energy-t .card-title { color: var(--accent-energy); }
+
+.card p { color: #c8c8d8; font-size: 0.92rem; margin-bottom: 0.55rem; }
+.card p:last-child { margin-bottom: 0; }
+
+/* rules list */
+.rules { list-style: none; display:flex; flex-direction:column; gap:0.45rem; margin-top:0.6rem; }
+.rules li { display:flex; align-items:flex-start; gap:0.55rem; font-size:0.9rem; color:#c8c8d8; }
+.rules li .dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:0.48em; }
+.math-t   .dot { background: var(--accent-math); }
+.vec-t    .dot { background: var(--accent-vec); }
+.force-t  .dot { background: var(--accent-force); }
+.energy-t .dot { background: var(--accent-energy); }
+
+/* formula */
+.formula {
+  display: inline-flex; align-items: center;
+  font-family: 'Space Mono', monospace; font-size: 1rem;
+  padding: 0.5rem 1rem; border-radius: 7px;
+  margin: 0.65rem 0 0.2rem; border: 1px solid;
+}
+.math-t   .formula { color: var(--accent-math);   background: rgba(244,162,97,0.07);  border-color: rgba(244,162,97,0.2); }
+.vec-t    .formula { color: var(--accent-vec);    background: rgba(72,202,228,0.07);  border-color: rgba(72,202,228,0.2); }
+.force-t  .formula { color: var(--accent-force);  background: rgba(230,57,70,0.07);   border-color: rgba(230,57,70,0.2); }
+.energy-t .formula { color: var(--accent-energy); background: rgba(45,198,83,0.07);   border-color: rgba(45,198,83,0.2); }
+
+.f-vars { font-size: 0.8rem; color: var(--muted); margin-top:0.25rem; }
+
+/* example */
+.example {
+  font-family: 'Space Mono', monospace; font-size: 0.78rem;
+  color: var(--muted); background: rgba(255,255,255,0.025);
+  border-left: 2px solid var(--border2);
+  padding: 0.55rem 0.8rem; border-radius: 0 5px 5px 0;
+  margin-top: 0.6rem; line-height: 1.75;
+}
+
+/* table */
+.mini-table { width:100%; border-collapse:collapse; font-size:0.83rem; margin-top:0.6rem; }
+.mini-table th {
+  font-family:'Space Mono',monospace; font-size:0.6rem;
+  letter-spacing:0.12em; text-transform:uppercase; color:var(--muted);
+  text-align:left; padding:0.35rem 0.6rem; border-bottom:1px solid var(--border2);
+}
+.mini-table td { padding:0.35rem 0.6rem; color:#c8c8d8; border-bottom:1px solid rgba(30,30,46,0.8); }
+.mini-table code { font-family:'Space Mono',monospace; font-size:0.8rem; }
+.math-t  .mini-table code { color: var(--accent-math); }
+.vec-t   .mini-table code { color: var(--accent-vec); }
+.force-t .mini-table code { color: var(--accent-force); }
+.energy-t .mini-table code { color: var(--accent-energy); }
+
+/* callout */
+.callout {
+  border-radius: 6px; padding: 0.75rem 1rem;
+  margin-top: 0.75rem; font-size: 0.86rem;
+}
+.callout.warn { background:rgba(244,162,97,0.08); border-left:2px solid var(--accent-math); color:#d4a07a; }
+.callout.tip  { background:rgba(45,198,83,0.08);  border-left:2px solid var(--accent-energy); color:#7acf9a; }
+.callout.info { background:rgba(72,202,228,0.08); border-left:2px solid var(--accent-vec); color:#7ac8da; }
+.callout strong { font-weight:600; display:block; margin-bottom:0.2rem; }
+
+/* analogy */
+.analogy {
+  display:flex; gap:0.65rem; align-items:flex-start;
+  border-radius:6px; padding:0.75rem 1rem;
+  margin-top:0.7rem; font-size:0.87rem; font-style:italic; color:var(--muted);
+  background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+}
+.analogy .icon { font-size:1rem; flex-shrink:0; margin-top:0.1em; font-style:normal; }
+
+/* divider */
+.divider { height:1px; background:var(--border); margin:1rem 0; }
+
+/* badge */
+.badge {
+  display:inline-block; font-family:'Space Mono',monospace;
+  font-size:0.68rem; padding:0.15rem 0.45rem; border-radius:4px;
+}
+.math-t   .badge { background:rgba(244,162,97,0.12); color:var(--accent-math); }
+.vec-t    .badge { background:rgba(72,202,228,0.12);  color:var(--accent-vec); }
+.force-t  .badge { background:rgba(230,57,70,0.12);   color:var(--accent-force); }
+.energy-t .badge { background:rgba(45,198,83,0.12);   color:var(--accent-energy); }
+
+/* INTERACTIVE */
+.interactive {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px; overflow:hidden;
+  margin-bottom: 1rem;
+}
+.int-header {
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+}
+.math-t   .int-header { color:var(--accent-math); }
+.vec-t    .int-header { color:var(--accent-vec); }
+.force-t  .int-header { color:var(--accent-force); }
+.energy-t .int-header { color:var(--accent-energy); }
+.int-body { padding: 1.25rem 1.4rem; }
+
+/* quiz */
+.quiz-item { margin-bottom:1rem; }
+.quiz-item:last-child { margin-bottom:0; }
+.quiz-q { font-size:0.88rem; color:#c8c8d8; margin-bottom:0.5rem; }
+.quiz-q code { font-family:'Space Mono',monospace; background:rgba(255,255,255,0.06); padding:0.1rem 0.35rem; border-radius:3px; }
+.quiz-opts { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.quiz-opts button {
+  font-family:'Space Mono',monospace; font-size:0.75rem;
+  padding:0.3rem 0.75rem; border-radius:5px;
+  border:1px solid var(--border2); background:rgba(255,255,255,0.04);
+  color:var(--muted); cursor:pointer; transition:all 0.15s;
+}
+.quiz-opts button:hover:not(:disabled) { background:rgba(255,255,255,0.08); color:var(--text); }
+.quiz-opts button.correct { background:rgba(45,198,83,0.12); border-color:rgba(45,198,83,0.4); color:var(--accent-energy); }
+.quiz-opts button.wrong   { background:rgba(230,57,70,0.1);  border-color:rgba(230,57,70,0.35); color:var(--accent-force); }
+.quiz-fb { font-size:0.8rem; margin-top:0.45rem; display:none; }
+.quiz-fb.show { display:block; }
+.quiz-fb.ok  { color:var(--accent-energy); }
+.quiz-fb.err { color:var(--accent-force); }
+
+/* calc */
+.calc-row { display:flex; flex-wrap:wrap; gap:0.75rem; }
+.calc-field { display:flex; flex-direction:column; gap:0.3rem; flex:1; min-width:110px; }
+.calc-field label { font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+.calc-field input {
+  font-family:'Space Mono',monospace; font-size:0.9rem;
+  padding:0.45rem 0.7rem; border-radius:6px;
+  border:1px solid var(--border2); background:rgba(255,255,255,0.04);
+  color:var(--text); outline:none; width:100%;
+  transition: border-color 0.2s;
+}
+.calc-btn {
+  margin-top:0.75rem; font-family:'Space Mono',monospace; font-size:0.75rem;
+  padding:0.45rem 1.1rem; border-radius:6px; border:none; cursor:pointer;
+  transition:opacity 0.2s;
+}
+.math-t   .calc-btn { background:var(--accent-math);   color:#1a0a00; }
+.vec-t    .calc-btn { background:var(--accent-vec);    color:#001a20; }
+.force-t  .calc-btn { background:var(--accent-force);  color:#fff; }
+.energy-t .calc-btn { background:var(--accent-energy); color:#001a0a; }
+.calc-btn:hover { opacity:0.85; }
+.calc-result { margin-top:0.7rem; font-family:'Space Mono',monospace; font-size:0.85rem; min-height:1.3rem; }
+.math-t   .calc-result { color:var(--accent-math); }
+.vec-t    .calc-result { color:var(--accent-vec); }
+.force-t  .calc-result { color:var(--accent-force); }
+.energy-t .calc-result { color:var(--accent-energy); }
+
+/* vec canvas */
+.vec-canvas-wrap { display:flex; flex-direction:column; gap:0.75rem; }
+.vec-canvas-wrap canvas {
+  border:1px solid var(--border); border-radius:7px;
+  background:#0d0d15; display:block; width:100%; max-width:420px;
+}
+.vec-controls { display:flex; flex-wrap:wrap; gap:1rem; }
+.vec-controls label { font-family:'Space Mono',monospace; font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); display:flex; flex-direction:column; gap:0.35rem; }
+.vec-controls input[type=range] { width:130px; accent-color:var(--accent-vec); }
+
+footer {
+  text-align:center; padding:2rem;
+  font-family:'Space Mono',monospace; font-size:0.62rem;
+  color:var(--muted); border-top:1px solid var(--border);
+  letter-spacing:0.1em;
+}
+</style>
 </head>
-
 <body>
 
-    <nav>
-        <a href="#matematica" class="m">01 · Matemática</a>
-        <a href="#vetores" class="v">02 · Vetores</a>
-        <a href="#forcas" class="f">03 · Forças</a>
-        <a href="#energia" class="e">04 · Energia</a>
-    </nav>
+<nav>
+  <a href="#matematica" class="m">01 · Matemática</a>
+  <a href="#vetores"    class="v">02 · Vetores</a>
+  <a href="#forcas"     class="f">03 · Forças</a>
+  <a href="#energia"    class="e">04 · Energia</a>
+</nav>
 
-    <div class="hero">
-        <div class="eyebrow">explicação completa · do zero</div>
-        <h1>Física sem mistério</h1>
-        <p>Cada tópico do resumo explicado do zero — com analogias, exemplos e interatividade.</p>
+<div class="hero">
+  <div class="eyebrow">explicação completa · do zero</div>
+  <h1>Física sem mistério</h1>
+  <p>Cada tópico do resumo explicado do zero — com analogias, exemplos e interatividade.</p>
+</div>
+
+<main>
+
+<!-- ══════ 1. MATEMÁTICA ══════ -->
+<section class="topic math-t" id="matematica">
+  <div class="topic-header">
+    <span class="topic-num">01</span>
+    <h2>Matemática na Física</h2>
+  </div>
+
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Algarismos Significativos</div>
+      <p>Toda medida no mundo real tem um limite de precisão. <strong>Algarismos significativos</strong> são os dígitos confiáveis daquela medida, mais um dígito duvidoso — aquele que você estimou.</p>
+      <div class="analogy"><span class="icon">🌡️</span><span>Um termômetro marca entre 36 e 37°C. Você lê "36,7°C" — o 36 tem certeza, o 7 é estimativa. O 7 ainda conta, mas é o limite da sua confiança.</span></div>
+      <ul class="rules" style="margin-top:1rem;">
+        <li><span class="dot"></span>Dígitos <strong>diferentes de zero</strong> sempre contam → <span class="badge">3,25 = 3 alg.</span></li>
+        <li><span class="dot"></span>Zeros <strong>entre números</strong> contam → <span class="badge">1002 = 4 alg.</span></li>
+        <li><span class="dot"></span>Zeros <strong>à esquerda</strong> NÃO contam (são posicionais) → <span class="badge">0,0045 = 2 alg.</span></li>
+        <li><span class="dot"></span>Zeros <strong>depois da vírgula</strong> contam (foram escritos de propósito) → <span class="badge">2,300 = 4 alg.</span></li>
+      </ul>
     </div>
+  </div>
 
-    <main>
+  <!-- Quiz alg sig -->
+  <div class="interactive">
+    <div class="int-header">🎯 teste rápido — algarismos sig.</div>
+    <div class="int-body">
+      <div class="quiz-item">
+        <div class="quiz-q">Quantos algarismos significativos tem <code>0,00720</code>?</div>
+        <div class="quiz-opts">
+          <button onclick="ans(this,false,'q1')">5</button>
+          <button onclick="ans(this,true, 'q1')">3</button>
+          <button onclick="ans(this,false,'q1')">6</button>
+          <button onclick="ans(this,false,'q1')">2</button>
+        </div>
+        <div class="quiz-fb" id="q1">✅ Correto! Zeros à esquerda não contam. Sobram: 7, 2, 0 = 3 algarismos.</div>
+      </div>
+      <div class="quiz-item">
+        <div class="quiz-q">Quantos algarismos significativos tem <code>5050</code>?</div>
+        <div class="quiz-opts">
+          <button onclick="ans(this,false,'q2')">2</button>
+          <button onclick="ans(this,false,'q2')">3</button>
+          <button onclick="ans(this,true, 'q2')">4</button>
+          <button onclick="ans(this,false,'q2')">1</button>
+        </div>
+        <div class="quiz-fb" id="q2">✅ Correto! O zero entre os 5s conta. São 4: 5, 0, 5, 0.</div>
+      </div>
+    </div>
+  </div>
 
-        <!-- ══════ 1. MATEMÁTICA ══════ -->
-        <section class="topic math-t" id="matematica">
-            <div class="topic-header">
-                <span class="topic-num">01</span>
-                <h2>Matemática na Física</h2>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Operações com Alg. Significativos</div>
+      <p>O resultado não pode ser mais preciso que a medida mais imprecisa envolvida.</p>
+      <div class="divider"></div>
+      <p><strong style="color:var(--accent-math)">Soma e Subtração</strong> → mantenha o menor número de casas decimais.</p>
+      <div class="example">15,9 + 0,823
+→ 15,9 tem 1 casa decimal, 0,823 tem 3
+→ Resultado: 16,7 (1 casa decimal)</div>
+      <div class="divider"></div>
+      <p><strong style="color:var(--accent-math)">Multiplicação e Divisão</strong> → mantenha o menor número de algarismos sig.</p>
+      <div class="example">2,5 × 3,42
+→ 2,5 tem 2 alg. sig., 3,42 tem 3
+→ Resultado com 2 alg. sig.: 8,6</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Algarismos Significativos</div>
-                    <p>Toda medida no mundo real tem um limite de precisão. <strong>Algarismos significativos</strong>
-                        são os dígitos confiáveis daquela medida, mais um dígito duvidoso — aquele que você estimou.</p>
-                    <div class="analogy"><span class="icon">🌡️</span><span>Um termômetro marca entre 36 e 37°C. Você lê
-                            "36,7°C" — o 36 tem certeza, o 7 é estimativa. O 7 ainda conta, mas é o limite da sua
-                            confiança.</span></div>
-                    <ul class="rules" style="margin-top:1rem;">
-                        <li><span class="dot"></span>Dígitos <strong>diferentes de zero</strong> sempre contam → <span
-                                class="badge">3,25 = 3 alg.</span></li>
-                        <li><span class="dot"></span>Zeros <strong>entre números</strong> contam → <span
-                                class="badge">1002 = 4 alg.</span></li>
-                        <li><span class="dot"></span>Zeros <strong>à esquerda</strong> NÃO contam (são posicionais) →
-                            <span class="badge">0,0045 = 2 alg.</span>
-                        </li>
-                        <li><span class="dot"></span>Zeros <strong>depois da vírgula</strong> contam (foram escritos de
-                            propósito) → <span class="badge">2,300 = 4 alg.</span></li>
-                    </ul>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Notação Científica</div>
+      <p>Forma compacta de escrever números muito grandes ou muito pequenos. O formato é sempre um número entre 1 e 10 multiplicado por uma potência de 10.</p>
+      <div class="formula">a × 10ⁿ &nbsp;&nbsp;(1 ≤ a &lt; 10)</div>
+      <div class="analogy" style="margin-top:0.75rem;"><span class="icon">🌍</span><span>A distância Terra-Sol é 150.000.000.000 m. Em notação científica: 1,5 × 10¹¹ m. Infinitamente mais legível.</span></div>
+      <div class="example" style="margin-top:0.75rem;">3500     →  3,5 × 10³   (vírgula andou 3 casas pra esquerda)
+0,0042   →  4,2 × 10⁻³  (vírgula andou 3 casas pra direita)</div>
+    </div>
+  </div>
 
-            <!-- Quiz alg sig -->
-            <div class="interactive">
-                <div class="int-header">🎯 teste rápido — algarismos sig.</div>
-                <div class="int-body">
-                    <div class="quiz-item">
-                        <div class="quiz-q">Quantos algarismos significativos tem <code>0,00720</code>?</div>
-                        <div class="quiz-opts">
-                            <button onclick="ans(this,false,'q1')">5</button>
-                            <button onclick="ans(this,true, 'q1')">3</button>
-                            <button onclick="ans(this,false,'q1')">6</button>
-                            <button onclick="ans(this,false,'q1')">2</button>
-                        </div>
-                        <div class="quiz-fb" id="q1">✅ Correto! Zeros à esquerda não contam. Sobram: 7, 2, 0 = 3
-                            algarismos.</div>
-                    </div>
-                    <div class="quiz-item">
-                        <div class="quiz-q">Quantos algarismos significativos tem <code>5050</code>?</div>
-                        <div class="quiz-opts">
-                            <button onclick="ans(this,false,'q2')">2</button>
-                            <button onclick="ans(this,false,'q2')">3</button>
-                            <button onclick="ans(this,true, 'q2')">4</button>
-                            <button onclick="ans(this,false,'q2')">1</button>
-                        </div>
-                        <div class="quiz-fb" id="q2">✅ Correto! O zero entre os 5s conta. São 4: 5, 0, 5, 0.</div>
-                    </div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Ordem de Grandeza</div>
+      <p>Aproximação ainda mais grossa — apenas a potência de 10 mais próxima. Útil pra comparar escalas completamente diferentes.</p>
+      <ul class="rules" style="margin-top:0.6rem;">
+        <li><span class="dot"></span>Primeiro dígito <strong>≥ 5</strong> → sobe a potência</li>
+        <li><span class="dot"></span>Primeiro dígito <strong>&lt; 5</strong> → mantém a potência</li>
+      </ul>
+      <div class="example" style="margin-top:0.7rem;">3,2 × 10⁶  →  ordem = 10⁶  (3,2 < 5, mantém)
+7,1 × 10⁶  →  ordem = 10⁷  (7,1 ≥ 5, sobe)</div>
+      <div class="callout warn" style="margin-top:0.75rem;"><strong>💡 Por quê?</strong> Se a "parte principal" já passou do meio (5), o número está mais próximo do próximo degrau de 10. Então arredonda pra cima.</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Operações com Alg. Significativos</div>
-                    <p>O resultado não pode ser mais preciso que a medida mais imprecisa envolvida.</p>
-                    <div class="divider"></div>
-                    <p><strong style="color:var(--accent-math)">Soma e Subtração</strong> → mantenha o menor número de
-                        casas decimais.</p>
-                    <div class="example">15,9 + 0,823
-                        → 15,9 tem 1 casa decimal, 0,823 tem 3
-                        → Resultado: 16,7 (1 casa decimal)</div>
-                    <div class="divider"></div>
-                    <p><strong style="color:var(--accent-math)">Multiplicação e Divisão</strong> → mantenha o menor
-                        número de algarismos sig.</p>
-                    <div class="example">2,5 × 3,42
-                        → 2,5 tem 2 alg. sig., 3,42 tem 3
-                        → Resultado com 2 alg. sig.: 8,6</div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Conversão de Unidades</div>
+      <p>Multiplique (ou divida) pelo fator correto. Pra sentido oposto, inverta a operação.</p>
+      <table class="mini-table">
+        <tr><th>Comprimento</th><th>Conversão</th></tr>
+        <tr><td>km → m</td><td><code>× 1000</code></td></tr>
+        <tr><td>m → cm</td><td><code>× 100</code></td></tr>
+        <tr><td>cm → mm</td><td><code>× 10</code></td></tr>
+      </table>
+      <table class="mini-table" style="margin-top:0.75rem;">
+        <tr><th>Tempo</th><th>Conversão</th></tr>
+        <tr><td>1 h → min</td><td><code>× 60</code></td></tr>
+        <tr><td>1 min → s</td><td><code>× 60</code></td></tr>
+        <tr><td>1 h → s</td><td><code>× 3600</code></td></tr>
+      </table>
+      <div class="callout warn" style="margin-top:0.75rem;"><strong>⚠️ Inversão</strong>500 m ÷ 1000 = 0,5 km. Para converter de unidade menor pra maior, divida.</div>
+    </div>
+  </div>
+</section>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Notação Científica</div>
-                    <p>Forma compacta de escrever números muito grandes ou muito pequenos. O formato é sempre um número
-                        entre 1 e 10 multiplicado por uma potência de 10.</p>
-                    <div class="formula">a × 10ⁿ &nbsp;&nbsp;(1 ≤ a &lt; 10)</div>
-                    <div class="analogy" style="margin-top:0.75rem;"><span class="icon">🌍</span><span>A distância
-                            Terra-Sol é 150.000.000.000 m. Em notação científica: 1,5 × 10¹¹ m. Infinitamente mais
-                            legível.</span></div>
-                    <div class="example" style="margin-top:0.75rem;">3500 → 3,5 × 10³ (vírgula andou 3 casas pra
-                        esquerda)
-                        0,0042 → 4,2 × 10⁻³ (vírgula andou 3 casas pra direita)</div>
-                </div>
-            </div>
+<!-- ══════ 2. VETORES ══════ -->
+<section class="topic vec-t" id="vetores">
+  <div class="topic-header">
+    <span class="topic-num">02</span>
+    <h2>Vetores</h2>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Ordem de Grandeza</div>
-                    <p>Aproximação ainda mais grossa — apenas a potência de 10 mais próxima. Útil pra comparar escalas
-                        completamente diferentes.</p>
-                    <ul class="rules" style="margin-top:0.6rem;">
-                        <li><span class="dot"></span>Primeiro dígito <strong>≥ 5</strong> → sobe a potência</li>
-                        <li><span class="dot"></span>Primeiro dígito <strong>&lt; 5</strong> → mantém a potência</li>
-                    </ul>
-                    <div class="example" style="margin-top:0.7rem;">3,2 × 10⁶ → ordem = 10⁶ (3,2 < 5, mantém) 7,1 × 10⁶
-                            → ordem=10⁷ (7,1 ≥ 5, sobe)</div>
-                            <div class="callout warn" style="margin-top:0.75rem;"><strong>💡 Por quê?</strong> Se a
-                                "parte principal" já passou do meio (5), o número está mais próximo do próximo degrau de
-                                10. Então arredonda pra cima.</div>
-                    </div>
-                </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">O que define um vetor?</div>
+      <p>Algumas grandezas não se descrevem com um número só. "A bola vai a 30 km/h" não é suficiente — pra onde? Um vetor carrega três informações obrigatórias:</p>
+      <ul class="rules" style="margin-top:0.65rem;">
+        <li><span class="dot"></span><strong>Módulo</strong> — o valor numérico (ex: 30 km/h)</li>
+        <li><span class="dot"></span><strong>Direção</strong> — a reta em que atua (ex: horizontal)</li>
+        <li><span class="dot"></span><strong>Sentido</strong> — pra qual lado da reta (ex: pra direita)</li>
+      </ul>
+      <div class="analogy"><span class="icon">🏹</span><span>Uma flecha representa perfeitamente um vetor: o comprimento é o módulo, a linha é a direção, e a ponta é o sentido.</span></div>
+    </div>
+  </div>
 
-                <div class="card">
-                    <div class="card-inner">
-                        <div class="card-title">Conversão de Unidades</div>
-                        <p>Multiplique (ou divida) pelo fator correto. Pra sentido oposto, inverta a operação.</p>
-                        <table class="mini-table">
-                            <tr>
-                                <th>Comprimento</th>
-                                <th>Conversão</th>
-                            </tr>
-                            <tr>
-                                <td>km → m</td>
-                                <td><code>× 1000</code></td>
-                            </tr>
-                            <tr>
-                                <td>m → cm</td>
-                                <td><code>× 100</code></td>
-                            </tr>
-                            <tr>
-                                <td>cm → mm</td>
-                                <td><code>× 10</code></td>
-                            </tr>
-                        </table>
-                        <table class="mini-table" style="margin-top:0.75rem;">
-                            <tr>
-                                <th>Tempo</th>
-                                <th>Conversão</th>
-                            </tr>
-                            <tr>
-                                <td>1 h → min</td>
-                                <td><code>× 60</code></td>
-                            </tr>
-                            <tr>
-                                <td>1 min → s</td>
-                                <td><code>× 60</code></td>
-                            </tr>
-                            <tr>
-                                <td>1 h → s</td>
-                                <td><code>× 3600</code></td>
-                            </tr>
-                        </table>
-                        <div class="callout warn" style="margin-top:0.75rem;"><strong>⚠️ Inversão</strong>500 m ÷ 1000 =
-                            0,5 km. Para converter de unidade menor pra maior, divida.</div>
-                    </div>
-                </div>
-        </section>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Distância vs Deslocamento</div>
+      <ul class="rules">
+        <li><span class="dot"></span><strong>Distância</strong> — o caminho total percorrido (escalar, sem direção)</li>
+        <li><span class="dot"></span><strong>Deslocamento</strong> — linha reta do ponto inicial ao final (vetor)</li>
+        <li><span class="dot"></span>Mesmo ponto de chegada e partida → deslocamento = <strong>zero</strong></li>
+      </ul>
+      <div class="example" style="margin-top:0.7rem;">Volta completa num quarteirão de 400 m:
+  Distância     = 400 m
+  Deslocamento  = 0 m  (voltou ao ponto de partida)</div>
+      <div class="analogy"><span class="icon">🚶</span><span>Distância é o ODômetro do carro. Deslocamento é o "voo de pássaro" — a linha reta de onde saiu até onde chegou.</span></div>
+    </div>
+  </div>
 
-        <!-- ══════ 2. VETORES ══════ -->
-        <section class="topic vec-t" id="vetores">
-            <div class="topic-header">
-                <span class="topic-num">02</span>
-                <h2>Vetores</h2>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Componentes do Vetor</div>
+      <p>Qualquer vetor pode ser decomposto em parte horizontal (eixo X) e vertical (eixo Y). Some os valores de cada eixo separadamente.</p>
+      <div class="example">Movimentos: 4 m leste, 3 m norte, 2 m oeste
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">O que define um vetor?</div>
-                    <p>Algumas grandezas não se descrevem com um número só. "A bola vai a 30 km/h" não é suficiente —
-                        pra onde? Um vetor carrega três informações obrigatórias:</p>
-                    <ul class="rules" style="margin-top:0.65rem;">
-                        <li><span class="dot"></span><strong>Módulo</strong> — o valor numérico (ex: 30 km/h)</li>
-                        <li><span class="dot"></span><strong>Direção</strong> — a reta em que atua (ex: horizontal)</li>
-                        <li><span class="dot"></span><strong>Sentido</strong> — pra qual lado da reta (ex: pra direita)
-                        </li>
-                    </ul>
-                    <div class="analogy"><span class="icon">🏹</span><span>Uma flecha representa perfeitamente um vetor:
-                            o comprimento é o módulo, a linha é a direção, e a ponta é o sentido.</span></div>
-                </div>
-            </div>
+Eixo X (leste positivo):  +4 − 2 = +2 m
+Eixo Y (norte positivo):  +3 m
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Distância vs Deslocamento</div>
-                    <ul class="rules">
-                        <li><span class="dot"></span><strong>Distância</strong> — o caminho total percorrido (escalar,
-                            sem direção)</li>
-                        <li><span class="dot"></span><strong>Deslocamento</strong> — linha reta do ponto inicial ao
-                            final (vetor)</li>
-                        <li><span class="dot"></span>Mesmo ponto de chegada e partida → deslocamento =
-                            <strong>zero</strong>
-                        </li>
-                    </ul>
-                    <div class="example" style="margin-top:0.7rem;">Volta completa num quarteirão de 400 m:
-                        Distância = 400 m
-                        Deslocamento = 0 m (voltou ao ponto de partida)</div>
-                    <div class="analogy"><span class="icon">🚶</span><span>Distância é o ODômetro do carro. Deslocamento
-                            é o "voo de pássaro" — a linha reta de onde saiu até onde chegou.</span></div>
-                </div>
-            </div>
+Vetor resultante: (2, 3)</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Componentes do Vetor</div>
-                    <p>Qualquer vetor pode ser decomposto em parte horizontal (eixo X) e vertical (eixo Y). Some os
-                        valores de cada eixo separadamente.</p>
-                    <div class="example">Movimentos: 4 m leste, 3 m norte, 2 m oeste
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Módulo Resultante — Pitágoras</div>
+      <p>Com as componentes (x, y), o tamanho total do vetor resultante vem do Teorema de Pitágoras:</p>
+      <div class="formula">R = √(x² + y²)</div>
+      <div class="f-vars">R = módulo | x = componente horizontal | y = componente vertical</div>
+      <div class="example" style="margin-top:0.7rem;">Vetor (2, 3):
+R = √(2² + 3²) = √(4 + 9) = √13 ≈ 3,6 m</div>
+      <div class="callout info" style="margin-top:0.75rem;"><strong>📐 Caso especial: vetores perpendiculares (90°)</strong>Se dois vetores formam 90° entre si — como leste + norte, ou o falcão com vento lateral — usa-se exatamente essa mesma fórmula: R = √(a² + b²).</div>
+    </div>
+  </div>
 
-                        Eixo X (leste positivo): +4 − 2 = +2 m
-                        Eixo Y (norte positivo): +3 m
+  <!-- Visualizador vetores -->
+  <div class="interactive">
+    <div class="int-header">🔵 visualizador interativo de vetores</div>
+    <div class="int-body">
+      <p style="font-size:0.83rem;color:var(--muted);margin-bottom:0.85rem;">Ajuste x e y e veja o vetor e seu módulo em tempo real:</p>
+      <div class="vec-canvas-wrap">
+        <canvas id="vecCanvas" width="420" height="280"></canvas>
+        <div class="vec-controls">
+          <label>Componente X
+            <input type="range" id="vx" min="-8" max="8" value="4">
+          </label>
+          <label>Componente Y
+            <input type="range" id="vy" min="-8" max="8" value="3">
+          </label>
+        </div>
+        <div class="calc-result" id="vecResult"></div>
+      </div>
+    </div>
+  </div>
 
-                        Vetor resultante: (2, 3)</div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Soma de Vetores</div>
+      <ul class="rules">
+        <li><span class="dot"></span><strong>Ponta com cauda</strong> — o 2º vetor começa onde o 1º termina; o resultante vai da cauda do 1º à ponta do 2º</li>
+        <li><span class="dot"></span><strong>Soma das componentes</strong> — some os X com X e os Y com Y; mais rápido pra calcular</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Módulo Resultante — Pitágoras</div>
-                    <p>Com as componentes (x, y), o tamanho total do vetor resultante vem do Teorema de Pitágoras:</p>
-                    <div class="formula">R = √(x² + y²)</div>
-                    <div class="f-vars">R = módulo | x = componente horizontal | y = componente vertical</div>
-                    <div class="example" style="margin-top:0.7rem;">Vetor (2, 3):
-                        R = √(2² + 3²) = √(4 + 9) = √13 ≈ 3,6 m</div>
-                    <div class="callout info" style="margin-top:0.75rem;"><strong>📐 Caso especial: vetores
-                            perpendiculares (90°)</strong>Se dois vetores formam 90° entre si — como leste + norte, ou o
-                        falcão com vento lateral — usa-se exatamente essa mesma fórmula: R = √(a² + b²).</div>
-                </div>
-            </div>
+<!-- ══════ 3. FORÇAS ══════ -->
+<section class="topic force-t" id="forcas">
+  <div class="topic-header">
+    <span class="topic-num">03</span>
+    <h2>Forças</h2>
+  </div>
 
-            <!-- Visualizador vetores -->
-            <div class="interactive">
-                <div class="int-header">🔵 visualizador interativo de vetores</div>
-                <div class="int-body">
-                    <p style="font-size:0.83rem;color:var(--muted);margin-bottom:0.85rem;">Ajuste x e y e veja o vetor e
-                        seu módulo em tempo real:</p>
-                    <div class="vec-canvas-wrap">
-                        <canvas id="vecCanvas" width="420" height="280"></canvas>
-                        <div class="vec-controls">
-                            <label>Componente X
-                                <input type="range" id="vx" min="-8" max="8" value="4">
-                            </label>
-                            <label>Componente Y
-                                <input type="range" id="vy" min="-8" max="8" value="3">
-                            </label>
-                        </div>
-                        <div class="calc-result" id="vecResult"></div>
-                    </div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">O que é uma força?</div>
+      <p>Força é qualquer interação que pode mudar o estado de movimento de um objeto — acelerar, frear, mudar de direção ou deformar. Sem força, um objeto parado fica parado e um em movimento continua reto pra sempre (1ª Lei de Newton).</p>
+      <p style="margin-top:0.5rem;">Unidade: <span class="badge">Newton (N)</span></p>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Soma de Vetores</div>
-                    <ul class="rules">
-                        <li><span class="dot"></span><strong>Ponta com cauda</strong> — o 2º vetor começa onde o 1º
-                            termina; o resultante vai da cauda do 1º à ponta do 2º</li>
-                        <li><span class="dot"></span><strong>Soma das componentes</strong> — some os X com X e os Y com
-                            Y; mais rápido pra calcular</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Peso (P)</div>
+      <p>A força que a gravidade exerce sobre a massa de um objeto. Não confunda massa com peso — massa é quantidade de matéria (não muda), peso é força (muda com g).</p>
+      <div class="formula">P = m · g</div>
+      <div class="f-vars">m = massa (kg) | g ≈ 10 m/s² (Terra)</div>
+      <div class="example" style="margin-top:0.7rem;">Pessoa de 70 kg:  P = 70 × 10 = 700 N
+Na Lua (g ≈ 1,6): P = 70 × 1,6 = 112 N  ← massa igual, peso diferente</div>
+    </div>
+  </div>
 
-        <!-- ══════ 3. FORÇAS ══════ -->
-        <section class="topic force-t" id="forcas">
-            <div class="topic-header">
-                <span class="topic-num">03</span>
-                <h2>Forças</h2>
-            </div>
+  <!-- Calc peso -->
+  <div class="interactive">
+    <div class="int-header">🔢 calculadora de peso</div>
+    <div class="int-body">
+      <div class="calc-row">
+        <div class="calc-field">
+          <label>Massa (kg)</label>
+          <input type="number" id="fMassa" placeholder="ex: 70" min="0">
+        </div>
+        <div class="calc-field">
+          <label>g (m/s²)</label>
+          <input type="number" id="fGrav" value="10" step="0.1" min="0">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcPeso()">Calcular</button>
+      <div class="calc-result" id="pesoResult"></div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">O que é uma força?</div>
-                    <p>Força é qualquer interação que pode mudar o estado de movimento de um objeto — acelerar, frear,
-                        mudar de direção ou deformar. Sem força, um objeto parado fica parado e um em movimento continua
-                        reto pra sempre (1ª Lei de Newton).</p>
-                    <p style="margin-top:0.5rem;">Unidade: <span class="badge">Newton (N)</span></p>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Força Normal (N)</div>
+      <p>Quando um objeto repousa sobre uma superfície, a superfície empurra o objeto de volta — essa é a Força Normal. Ela equilibra o peso em situações estáticas.</p>
+      <ul class="rules" style="margin-top:0.6rem;">
+        <li><span class="dot"></span>Sempre <strong>perpendicular</strong> à superfície</li>
+        <li><span class="dot"></span>Em superfície horizontal sem outras forças: Normal = Peso</li>
+      </ul>
+      <div class="analogy"><span class="icon">📚</span><span>A mesa "sente" o livro e empurra pra cima com a mesma força. As forças se equilibram — por isso o livro fica parado.</span></div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Peso (P)</div>
-                    <p>A força que a gravidade exerce sobre a massa de um objeto. Não confunda massa com peso — massa é
-                        quantidade de matéria (não muda), peso é força (muda com g).</p>
-                    <div class="formula">P = m · g</div>
-                    <div class="f-vars">m = massa (kg) | g ≈ 10 m/s² (Terra)</div>
-                    <div class="example" style="margin-top:0.7rem;">Pessoa de 70 kg: P = 70 × 10 = 700 N
-                        Na Lua (g ≈ 1,6): P = 70 × 1,6 = 112 N ← massa igual, peso diferente</div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Tração (T)</div>
+      <p>Força transmitida por cordas, fios ou cabos. A corda "replica" a força de um extremo ao outro, sem perdas (em corda ideal, sem massa e inextensível).</p>
+    </div>
+  </div>
 
-            <!-- Calc peso -->
-            <div class="interactive">
-                <div class="int-header">🔢 calculadora de peso</div>
-                <div class="int-body">
-                    <div class="calc-row">
-                        <div class="calc-field">
-                            <label>Massa (kg)</label>
-                            <input type="number" id="fMassa" placeholder="ex: 70" min="0">
-                        </div>
-                        <div class="calc-field">
-                            <label>g (m/s²)</label>
-                            <input type="number" id="fGrav" value="10" step="0.1" min="0">
-                        </div>
-                    </div>
-                    <button class="calc-btn" onclick="calcPeso()">Calcular</button>
-                    <div class="calc-result" id="pesoResult"></div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Força Elástica — Lei de Hooke</div>
+      <p>Molas se opõem à deformação com uma força proporcional ao quanto foram deformadas. A relação é linear — dobra a deformação, dobra a força.</p>
+      <div class="formula">F = k · x</div>
+      <div class="f-vars">k = constante da mola (N/m) — rigidez | x = deformação (m)</div>
+      <div class="example" style="margin-top:0.7rem;">Mola com k = 200 N/m esticada 0,05 m:
+F = 200 × 0,05 = 10 N</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Força Normal (N)</div>
-                    <p>Quando um objeto repousa sobre uma superfície, a superfície empurra o objeto de volta — essa é a
-                        Força Normal. Ela equilibra o peso em situações estáticas.</p>
-                    <ul class="rules" style="margin-top:0.6rem;">
-                        <li><span class="dot"></span>Sempre <strong>perpendicular</strong> à superfície</li>
-                        <li><span class="dot"></span>Em superfície horizontal sem outras forças: Normal = Peso</li>
-                    </ul>
-                    <div class="analogy"><span class="icon">📚</span><span>A mesa "sente" o livro e empurra pra cima com
-                            a mesma força. As forças se equilibram — por isso o livro fica parado.</span></div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Força de Atrito</div>
+      <p>Força que surge entre superfícies em contato e se <strong>opõe ao movimento</strong>. Sempre age no sentido contrário ao deslocamento.</p>
+      <div class="analogy"><span class="icon">🛑</span><span>Sem atrito, você não conseguiria nem andar — seus pés escorregariam pra trás sem parar. O atrito é o que permite tração.</span></div>
+    </div>
+  </div>
+</section>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Tração (T)</div>
-                    <p>Força transmitida por cordas, fios ou cabos. A corda "replica" a força de um extremo ao outro,
-                        sem perdas (em corda ideal, sem massa e inextensível).</p>
-                </div>
-            </div>
+<!-- ══════ 4. ENERGIA ══════ -->
+<section class="topic energy-t" id="energia">
+  <div class="topic-header">
+    <span class="topic-num">04</span>
+    <h2>Energia</h2>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Força Elástica — Lei de Hooke</div>
-                    <p>Molas se opõem à deformação com uma força proporcional ao quanto foram deformadas. A relação é
-                        linear — dobra a deformação, dobra a força.</p>
-                    <div class="formula">F = k · x</div>
-                    <div class="f-vars">k = constante da mola (N/m) — rigidez | x = deformação (m)</div>
-                    <div class="example" style="margin-top:0.7rem;">Mola com k = 200 N/m esticada 0,05 m:
-                        F = 200 × 0,05 = 10 N</div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">O que é energia?</div>
+      <p>Energia é a <strong>capacidade de realizar trabalho</strong> — de causar alguma mudança no mundo. Ela não aparece do nada nem some: apenas muda de forma.</p>
+      <p>Unidade: <span class="badge">Joule (J)</span></p>
+      <div class="analogy"><span class="icon">⚡</span><span>A energia química da comida vira energia mecânica quando você corre. A energia cinética de um carro vira calor quando você freia. Sempre se transforma.</span></div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Força de Atrito</div>
-                    <p>Força que surge entre superfícies em contato e se <strong>opõe ao movimento</strong>. Sempre age
-                        no sentido contrário ao deslocamento.</p>
-                    <div class="analogy"><span class="icon">🛑</span><span>Sem atrito, você não conseguiria nem andar —
-                            seus pés escorregariam pra trás sem parar. O atrito é o que permite tração.</span></div>
-                </div>
-            </div>
-        </section>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Energia Cinética (Ec)</div>
+      <p>Energia que um objeto possui por estar em <strong>movimento</strong>. Depende da velocidade ao quadrado — dobrar a velocidade quadruplica a energia.</p>
+      <div class="formula">Ec = mv² / 2</div>
+      <div class="f-vars">m = massa (kg) | v = velocidade (m/s)</div>
+      <div class="example" style="margin-top:0.7rem;">Skate de 5 kg a 4 m/s:
+Ec = (5 × 16) / 2 = 40 J</div>
+      <div class="callout warn" style="margin-top:0.75rem;"><strong>⚠️ Atenção ao v²</strong>Se a velocidade dobra → Ec quadruplica. Por isso carros em alta velocidade são muito mais perigosos do que parece.</div>
+    </div>
+  </div>
 
-        <!-- ══════ 4. ENERGIA ══════ -->
-        <section class="topic energy-t" id="energia">
-            <div class="topic-header">
-                <span class="topic-num">04</span>
-                <h2>Energia</h2>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Energia Potencial Gravitacional (Ep)</div>
+      <p>Energia armazenada devido à <strong>altura</strong>. Quanto mais alto o objeto, mais Ep ele tem — pronta pra virar Ec quando cair.</p>
+      <div class="formula">Ep = m · g · h</div>
+      <div class="f-vars">m = massa (kg) | g ≈ 10 m/s² | h = altura (m)</div>
+      <div class="example" style="margin-top:0.7rem;">Bola de 2 kg a 5 m de altura:
+Ep = 2 × 10 × 5 = 100 J</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">O que é energia?</div>
-                    <p>Energia é a <strong>capacidade de realizar trabalho</strong> — de causar alguma mudança no mundo.
-                        Ela não aparece do nada nem some: apenas muda de forma.</p>
-                    <p>Unidade: <span class="badge">Joule (J)</span></p>
-                    <div class="analogy"><span class="icon">⚡</span><span>A energia química da comida vira energia
-                            mecânica quando você corre. A energia cinética de um carro vira calor quando você freia.
-                            Sempre se transforma.</span></div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Energia Potencial Elástica</div>
+      <p>Energia armazenada numa mola deformada — pronta pra ser liberada quando solta.</p>
+      <div class="formula">Eel = kx² / 2</div>
+      <div class="f-vars">k = constante da mola (N/m) | x = deformação (m)</div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Energia Cinética (Ec)</div>
-                    <p>Energia que um objeto possui por estar em <strong>movimento</strong>. Depende da velocidade ao
-                        quadrado — dobrar a velocidade quadruplica a energia.</p>
-                    <div class="formula">Ec = mv² / 2</div>
-                    <div class="f-vars">m = massa (kg) | v = velocidade (m/s)</div>
-                    <div class="example" style="margin-top:0.7rem;">Skate de 5 kg a 4 m/s:
-                        Ec = (5 × 16) / 2 = 40 J</div>
-                    <div class="callout warn" style="margin-top:0.75rem;"><strong>⚠️ Atenção ao v²</strong>Se a
-                        velocidade dobra → Ec quadruplica. Por isso carros em alta velocidade são muito mais perigosos
-                        do que parece.</div>
-                </div>
-            </div>
+  <!-- Calc energia -->
+  <div class="interactive">
+    <div class="int-header">🔢 calculadora de energia</div>
+    <div class="int-body">
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.85rem;">Calcula Ec e Ep gravitacional ao mesmo tempo:</p>
+      <div class="calc-row">
+        <div class="calc-field">
+          <label>Massa (kg)</label>
+          <input type="number" id="eMassa" placeholder="ex: 5" min="0">
+        </div>
+        <div class="calc-field">
+          <label>Velocidade (m/s)</label>
+          <input type="number" id="eVel" placeholder="ex: 4" min="0">
+        </div>
+        <div class="calc-field">
+          <label>Altura (m)</label>
+          <input type="number" id="eAltura" placeholder="ex: 3" min="0">
+        </div>
+      </div>
+      <button class="calc-btn" onclick="calcEnergia()">Calcular</button>
+      <div class="calc-result" id="energiaResult"></div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Energia Potencial Gravitacional (Ep)</div>
-                    <p>Energia armazenada devido à <strong>altura</strong>. Quanto mais alto o objeto, mais Ep ele tem —
-                        pronta pra virar Ec quando cair.</p>
-                    <div class="formula">Ep = m · g · h</div>
-                    <div class="f-vars">m = massa (kg) | g ≈ 10 m/s² | h = altura (m)</div>
-                    <div class="example" style="margin-top:0.7rem;">Bola de 2 kg a 5 m de altura:
-                        Ep = 2 × 10 × 5 = 100 J</div>
-                </div>
-            </div>
+  <div class="card">
+    <div class="card-inner">
+      <div class="card-title">Conservação da Energia Mecânica</div>
+      <p>Sem atrito, a energia mecânica total (Ec + Ep) nunca muda — apenas se transforma entre as formas.</p>
+      <div class="formula">E_inicial = E_final</div>
+      <div class="f-vars">(Ec + Ep) no início = (Ec + Ep) no final</div>
+      <div class="example" style="margin-top:0.75rem;">Rampa (sem atrito):
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Energia Potencial Elástica</div>
-                    <p>Energia armazenada numa mola deformada — pronta pra ser liberada quando solta.</p>
-                    <div class="formula">Eel = kx² / 2</div>
-                    <div class="f-vars">k = constante da mola (N/m) | x = deformação (m)</div>
-                </div>
-            </div>
+  Topo:   Ec = 0  (parado),  Ep = máxima
+  Meio:   Ec e Ep se dividem
+  Base:   Ec = máxima,       Ep = 0
 
-            <!-- Calc energia -->
-            <div class="interactive">
-                <div class="int-header">🔢 calculadora de energia</div>
-                <div class="int-body">
-                    <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.85rem;">Calcula Ec e Ep gravitacional
-                        ao mesmo tempo:</p>
-                    <div class="calc-row">
-                        <div class="calc-field">
-                            <label>Massa (kg)</label>
-                            <input type="number" id="eMassa" placeholder="ex: 5" min="0">
-                        </div>
-                        <div class="calc-field">
-                            <label>Velocidade (m/s)</label>
-                            <input type="number" id="eVel" placeholder="ex: 4" min="0">
-                        </div>
-                        <div class="calc-field">
-                            <label>Altura (m)</label>
-                            <input type="number" id="eAltura" placeholder="ex: 3" min="0">
-                        </div>
-                    </div>
-                    <button class="calc-btn" onclick="calcEnergia()">Calcular</button>
-                    <div class="calc-result" id="energiaResult"></div>
-                </div>
-            </div>
+  → A soma (Ec + Ep) é igual nos três pontos.</div>
+      <div class="analogy"><span class="icon">🎢</span><span>Uma montanha-russa sem atrito subiria exatamente até a mesma altura de onde saiu — eternamente. O atrito é o que faz ela parar.</span></div>
+    </div>
+  </div>
 
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-title">Conservação da Energia Mecânica</div>
-                    <p>Sem atrito, a energia mecânica total (Ec + Ep) nunca muda — apenas se transforma entre as formas.
-                    </p>
-                    <div class="formula">E_inicial = E_final</div>
-                    <div class="f-vars">(Ec + Ep) no início = (Ec + Ep) no final</div>
-                    <div class="example" style="margin-top:0.75rem;">Rampa (sem atrito):
+  <!-- Quiz energia -->
+  <div class="interactive">
+    <div class="int-header">🎯 teste — conservação de energia</div>
+    <div class="int-body">
+      <div class="quiz-item">
+        <div class="quiz-q">Um objeto cai de altura h. No momento em que toca o chão (h = 0), qual é sua Energia Potencial?</div>
+        <div class="quiz-opts">
+          <button onclick="ans(this,false,'q3')">mgh</button>
+          <button onclick="ans(this,true, 'q3')">zero</button>
+          <button onclick="ans(this,false,'q3')">mv²/2</button>
+        </div>
+        <div class="quiz-fb" id="q3">✅ Correto! Ep = mgh → com h = 0, Ep = 0. Toda energia virou cinética.</div>
+      </div>
+      <div class="quiz-item">
+        <div class="quiz-q">Se a velocidade dobra, a Energia Cinética…</div>
+        <div class="quiz-opts">
+          <button onclick="ans(this,false,'q4')">Dobra</button>
+          <button onclick="ans(this,true, 'q4')">Quadruplica</button>
+          <button onclick="ans(this,false,'q4')">Triplica</button>
+          <button onclick="ans(this,false,'q4')">Permanece igual</button>
+        </div>
+        <div class="quiz-fb" id="q4">✅ Correto! Ec = mv²/2. Se v dobra → v² quadruplica → Ec vai a 4×.</div>
+      </div>
+    </div>
+  </div>
 
-                        Topo: Ec = 0 (parado), Ep = máxima
-                        Meio: Ec e Ep se dividem
-                        Base: Ec = máxima, Ep = 0
+</section>
+</main>
 
-                        → A soma (Ec + Ep) é igual nos três pontos.</div>
-                    <div class="analogy"><span class="icon">🎢</span><span>Uma montanha-russa sem atrito subiria
-                            exatamente até a mesma altura de onde saiu — eternamente. O atrito é o que faz ela
-                            parar.</span></div>
-                </div>
-            </div>
+<footer>física do zero · explicação completa · todos os tópicos do resumo</footer>
 
-            <!-- Quiz energia -->
-            <div class="interactive">
-                <div class="int-header">🎯 teste — conservação de energia</div>
-                <div class="int-body">
-                    <div class="quiz-item">
-                        <div class="quiz-q">Um objeto cai de altura h. No momento em que toca o chão (h = 0), qual é sua
-                            Energia Potencial?</div>
-                        <div class="quiz-opts">
-                            <button onclick="ans(this,false,'q3')">mgh</button>
-                            <button onclick="ans(this,true, 'q3')">zero</button>
-                            <button onclick="ans(this,false,'q3')">mv²/2</button>
-                        </div>
-                        <div class="quiz-fb" id="q3">✅ Correto! Ep = mgh → com h = 0, Ep = 0. Toda energia virou
-                            cinética.</div>
-                    </div>
-                    <div class="quiz-item">
-                        <div class="quiz-q">Se a velocidade dobra, a Energia Cinética…</div>
-                        <div class="quiz-opts">
-                            <button onclick="ans(this,false,'q4')">Dobra</button>
-                            <button onclick="ans(this,true, 'q4')">Quadruplica</button>
-                            <button onclick="ans(this,false,'q4')">Triplica</button>
-                            <button onclick="ans(this,false,'q4')">Permanece igual</button>
-                        </div>
-                        <div class="quiz-fb" id="q4">✅ Correto! Ec = mv²/2. Se v dobra → v² quadruplica → Ec vai a 4×.
-                        </div>
-                    </div>
-                </div>
-            </div>
+<script>
+// Quiz
+function ans(btn, correct, id) {
+  const item = btn.closest('.quiz-item');
+  item.querySelectorAll('button').forEach(b => { b.disabled = true; b.style.opacity = '0.45'; });
+  btn.style.opacity = '1';
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const fb = document.getElementById(id);
+  fb.classList.add('show', correct ? 'ok' : 'err');
+  if (!correct) fb.textContent = '❌ Não exatamente — reveja a explicação acima.';
+}
 
-        </section>
-    </main>
+// Peso
+function calcPeso() {
+  const m = parseFloat(document.getElementById('fMassa').value);
+  const g = parseFloat(document.getElementById('fGrav').value);
+  const el = document.getElementById('pesoResult');
+  if (isNaN(m) || isNaN(g) || m < 0) { el.textContent = 'Preencha os campos corretamente.'; return; }
+  el.textContent = `P = ${m} × ${g} = ${(m*g).toFixed(2)} N`;
+}
 
-    <footer>física do zero · explicação completa · todos os tópicos do resumo</footer>
+// Energia
+function calcEnergia() {
+  const m = parseFloat(document.getElementById('eMassa').value);
+  const v = parseFloat(document.getElementById('eVel').value);
+  const h = parseFloat(document.getElementById('eAltura').value);
+  const el = document.getElementById('energiaResult');
+  if ([m,v,h].some(isNaN)) { el.textContent = 'Preencha todos os campos.'; return; }
+  const ec = (m*v*v)/2, ep = m*10*h;
+  el.textContent = `Ec = ${ec.toFixed(2)} J  |  Ep = ${ep.toFixed(2)} J  |  Total = ${(ec+ep).toFixed(2)} J`;
+}
 
-    <script>
-        // Quiz
-        function ans(btn, correct, id) {
-            const item = btn.closest('.quiz-item');
-            item.querySelectorAll('button').forEach(b => { b.disabled = true; b.style.opacity = '0.45'; });
-            btn.style.opacity = '1';
-            btn.classList.add(correct ? 'correct' : 'wrong');
-            const fb = document.getElementById(id);
-            fb.classList.add('show', correct ? 'ok' : 'err');
-            if (!correct) fb.textContent = '❌ Não exatamente — reveja a explicação acima.';
-        }
+// Vetor canvas
+const canvas = document.getElementById('vecCanvas');
+const ctx = canvas.getContext('2d');
 
-        // Peso
-        function calcPeso() {
-            const m = parseFloat(document.getElementById('fMassa').value);
-            const g = parseFloat(document.getElementById('fGrav').value);
-            const el = document.getElementById('pesoResult');
-            if (isNaN(m) || isNaN(g) || m < 0) { el.textContent = 'Preencha os campos corretamente.'; return; }
-            el.textContent = `P = ${m} × ${g} = ${(m * g).toFixed(2)} N`;
-        }
+function drawVec() {
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2, sc = 22;
+  const vx = +document.getElementById('vx').value;
+  const vy = +document.getElementById('vy').value;
 
-        // Energia
-        function calcEnergia() {
-            const m = parseFloat(document.getElementById('eMassa').value);
-            const v = parseFloat(document.getElementById('eVel').value);
-            const h = parseFloat(document.getElementById('eAltura').value);
-            const el = document.getElementById('energiaResult');
-            if ([m, v, h].some(isNaN)) { el.textContent = 'Preencha todos os campos.'; return; }
-            const ec = (m * v * v) / 2, ep = m * 10 * h;
-            el.textContent = `Ec = ${ec.toFixed(2)} J  |  Ep = ${ep.toFixed(2)} J  |  Total = ${(ec + ep).toFixed(2)} J`;
-        }
+  ctx.clearRect(0,0,W,H);
 
-        // Vetor canvas
-        const canvas = document.getElementById('vecCanvas');
-        const ctx = canvas.getContext('2d');
+  // grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+  for (let x=0;x<=W;x+=sc){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+  for (let y=0;y<=H;y+=sc){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
 
-        function drawVec() {
-            const W = canvas.width, H = canvas.height;
-            const cx = W / 2, cy = H / 2, sc = 22;
-            const vx = +document.getElementById('vx').value;
-            const vy = +document.getElementById('vy').value;
+  // axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
+  ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(cx,0);ctx.lineTo(cx,H);ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='10px Space Mono,monospace';
+  ctx.fillText('X',W-16,cy-8); ctx.fillText('Y',cx+8,12);
 
-            ctx.clearRect(0, 0, W, H);
+  const ex = cx+vx*sc, ey = cy-vy*sc;
 
-            // grid
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
-            for (let x = 0; x <= W; x += sc) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
-            for (let y = 0; y <= H; y += sc) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  // component dashes
+  ctx.strokeStyle='rgba(72,202,228,0.25)'; ctx.lineWidth=1.5; ctx.setLineDash([4,4]);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,cy);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(ex,cy);ctx.lineTo(ex,ey);ctx.stroke();
+  ctx.setLineDash([]);
 
-            // axes
-            ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '10px Space Mono,monospace';
-            ctx.fillText('X', W - 16, cy - 8); ctx.fillText('Y', cx + 8, 12);
+  // labels
+  ctx.fillStyle='rgba(72,202,228,0.5)'; ctx.font='10px Space Mono,monospace';
+  ctx.fillText(`x=${vx}`, cx+(ex-cx)/2-10, cy+16);
+  ctx.fillText(`y=${vy}`, ex+6, cy+(ey-cy)/2);
 
-            const ex = cx + vx * sc, ey = cy - vy * sc;
+  // resultant
+  ctx.strokeStyle='#48cae4'; ctx.lineWidth=2.5;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();
+  const ang = Math.atan2(ey-cy,ex-cx), al=11;
+  ctx.fillStyle='#48cae4';
+  ctx.beginPath();ctx.moveTo(ex,ey);
+  ctx.lineTo(ex-al*Math.cos(ang-0.4),ey-al*Math.sin(ang-0.4));
+  ctx.lineTo(ex-al*Math.cos(ang+0.4),ey-al*Math.sin(ang+0.4));
+  ctx.closePath();ctx.fill();
 
-            // component dashes
-            ctx.strokeStyle = 'rgba(72,202,228,0.25)'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, cy); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(ex, cy); ctx.lineTo(ex, ey); ctx.stroke();
-            ctx.setLineDash([]);
+  // origin dot
+  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fill();
 
-            // labels
-            ctx.fillStyle = 'rgba(72,202,228,0.5)'; ctx.font = '10px Space Mono,monospace';
-            ctx.fillText(`x=${vx}`, cx + (ex - cx) / 2 - 10, cy + 16);
-            ctx.fillText(`y=${vy}`, ex + 6, cy + (ey - cy) / 2);
+  const mod = Math.sqrt(vx*vx+vy*vy);
+  document.getElementById('vecResult').textContent =
+    `Vetor (${vx}, ${vy})  |  R = √(${vx}²+${vy}²) = ${mod.toFixed(2)}`;
+}
 
-            // resultant
-            ctx.strokeStyle = '#48cae4'; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
-            const ang = Math.atan2(ey - cy, ex - cx), al = 11;
-            ctx.fillStyle = '#48cae4';
-            ctx.beginPath(); ctx.moveTo(ex, ey);
-            ctx.lineTo(ex - al * Math.cos(ang - 0.4), ey - al * Math.sin(ang - 0.4));
-            ctx.lineTo(ex - al * Math.cos(ang + 0.4), ey - al * Math.sin(ang + 0.4));
-            ctx.closePath(); ctx.fill();
-
-            // origin dot
-            ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fill();
-
-            const mod = Math.sqrt(vx * vx + vy * vy);
-            document.getElementById('vecResult').textContent =
-                `Vetor (${vx}, ${vy})  |  R = √(${vx}²+${vy}²) = ${mod.toFixed(2)}`;
-        }
-
-        document.getElementById('vx').addEventListener('input', drawVec);
-        document.getElementById('vy').addEventListener('input', drawVec);
-        drawVec();
-    </script>
+document.getElementById('vx').addEventListener('input', drawVec);
+document.getElementById('vy').addEventListener('input', drawVec);
+drawVec();
+</script>
 </body>
-
 </html>
